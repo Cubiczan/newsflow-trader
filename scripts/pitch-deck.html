@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NewsFlow Trader — Alpaca AI Trading Agents Hackathon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: 1280px 720px;
+    margin: 0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1280px;
+    background: #0b1220;
+    font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+    color: #e2e8f0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 1280px;
+    height: 720px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+    padding: 56px 72px;
+    background: linear-gradient(135deg, #0b1220 0%, #111c2e 100%);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ---- shared elements ---- */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .brand .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #0ea5e9);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+  }
+  .badge {
+    background: #064e3b;
+    color: #d1fae5;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .page-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  /* ---- slide 1: title ---- */
+  .title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .title-slide .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    gap: 24px;
+  }
+  .title-slide h1 {
+    font-size: 88px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #6ee7b7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .title-slide .tagline {
+    font-size: 22px;
+    font-weight: 400;
+    color: #cbd5e1;
+    line-height: 1.4;
+    max-width: 880px;
+  }
+  .title-slide .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 12px;
+    align-items: center;
+  }
+  .title-slide .meta .pill {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .title-slide .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    color: #64748b;
+    font-size: 12px;
+    border-top: 1px solid #1e293b;
+    padding-top: 20px;
+  }
+
+  /* ---- shared slide title bar ---- */
+  .slide-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .slide-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-bottom: 32px;
+  }
+
+  /* ---- slide 2: problem ---- */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .problem-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid #1e293b;
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .problem-card .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #f59e0b;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .problem-card h3 {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .problem-card p {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* ---- slide 3: solution ---- */
+  .solution-flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 30px 0 24px;
+  }
+  .flow-node {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+    position: relative;
+  }
+  .flow-node.highlight {
+    background: linear-gradient(135deg, #064e3b, #0c4a6e);
+    border-color: #10b981;
+  }
+  .flow-node .icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .flow-node h4 {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .flow-node p {
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .flow-arrow {
+    color: #475569;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .solution-callout {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(14, 165, 233, 0.1));
+    border: 1px solid #134e4a;
+    border-radius: 16px;
+    padding: 24px 32px;
+    margin-top: 28px;
+  }
+  .solution-callout h4 {
+    color: #10b981;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .solution-callout p {
+    color: #e2e8f0;
+    font-size: 17px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* ---- slide 4: how it works (tick loop) ---- */
+  .tick-flow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .tick-step {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .tick-step .step-num {
+    background: linear-gradient(135deg, #10b981, #0ea5e9);
+    color: #0b1220;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .tick-step h4 {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .tick-step p {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* ---- slide 5: live proof ---- */
+  .proof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(14, 165, 233, 0.08));
+    border: 1px solid #134e4a;
+    border-radius: 12px;
+    padding: 18px 16px;
+  }
+  .stat-card .label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    color: #10b981;
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+  .stat-card .sub {
+    color: #64748b;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  table.fills {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.fills thead {
+    background: #1e293b;
+    color: #94a3b8;
+  }
+  table.fills th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  table.fills tbody tr {
+    border-bottom: 1px solid #1e293b;
+  }
+  table.fills tbody tr:nth-child(even) { background: rgba(15, 23, 42, 0.4); }
+  table.fills td {
+    padding: 10px 14px;
+    color: #e2e8f0;
+  }
+  table.fills td.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  table.fills .tag-buy {
+    color: #10b981; font-weight: 700;
+  }
+  table.fills .tag-sell {
+    color: #f87171; font-weight: 700;
+  }
+  table.fills .tag-filled {
+    color: #10b981; font-size: 11px;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ---- slide 6: tech stack ---- */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .tech-col h4 {
+    color: #10b981;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .tech-item {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tech-item .name {
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tech-item .ver {
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  /* ---- slide 7: risk guard ---- */
+  .risk-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .risk-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .risk-card .label {
+    color: #f59e0b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .risk-card .val {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .risk-card .desc {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .blocked-list {
+    background: rgba(127, 29, 29, 0.2);
+    border: 1px solid #7f1d1d;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .blocked-list h4 {
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .blocked-list ul {
+    list-style: none;
+    color: #fca5a5;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .blocked-list ul li::before {
+    content: "✕  ";
+    color: #ef4444;
+    font-weight: 700;
+  }
+
+  /* ---- slide 8: closing ---- */
+  .closing-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 28px;
+  }
+  .closing-slide h2 {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #10b981 0%, #38bdf8 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.1;
+  }
+  .closing-slide p {
+    font-size: 22px;
+    color: #cbd5e1;
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  .links-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .link-pill {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 10px 20px;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .closing-footer {
+    margin-top: 36px;
+    color: #64748b;
+    font-size: 13px;
+    border-top: 1px solid #1e293b;
+    padding-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SLIDE 1 — TITLE -->
+<!-- ============================================================ -->
+<section class="page title-slide">
+  <div class="header-row">
+    <div class="brand">
+      <div class="dot"></div>
+      NewsFlow Trader
+    </div>
+    <div class="badge">Alpaca AI Trading Agents Hackathon · 2026</div>
+  </div>
+
+  <div class="hero">
+    <h1>NewsFlow Trader</h1>
+    <div class="tagline">An autonomous LLM-driven news trading agent on Alpaca's Trading API — reads headlines, scores sentiment, applies a risk guard, and submits approved paper orders. Every decision visible in a live dashboard.</div>
+    <div class="meta">
+      <div class="pill">GLM-4.6</div>
+      <div class="pill">Alpaca Paper API</div>
+      <div class="pill">Next.js 16 + Bun</div>
+      <div class="pill">socket.io</div>
+      <div class="pill">Prisma + SQLite</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Built Aug 28, 2026 · $6,000 prize pool · lablab.ai hackathon</div>
+    <div>github.com/icohangar-ops/newsflow-trader</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2 — PROBLEM -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">02 / 08</div>
+  </div>
+
+  <h2 class="slide-title">Trading the news by hand is too slow</h2>
+  <div class="slide-subtitle">Retail traders face four compounding problems that an autonomous agent can solve.</div>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="num">01 · LATENCY</div>
+      <h3>Headlines move markets in seconds</h3>
+      <p>An earnings beat, an FDA approval, a Fed dot-plot shift — by the time a human reads, digests, and clicks "buy", the move is over. Algorithmic desks trade in milliseconds; retail sits on the sidelines.</p>
+    </div>
+
+    <div class="problem-card">
+      <div class="num">02 · SENTIMENT</div>
+      <h3>"Is this bullish or bearish?" is hard</h3>
+      <p>Most headlines are nuanced. "Tesla Q3 deliveries miss estimates, China competition intensifies" cuts both ways. A trader needs to read, weigh, and decide — and fatigue compounds over a trading day.</p>
+    </div>
+
+    <div class="problem-card">
+      <div class="num">03 · DISCIPLINE</div>
+      <h3>Risk limits slip when emotions spike</h3>
+      <p>FOMO buys at the top, revenge trades after a loss, oversized positions on a "sure thing". Without a hard-coded risk guard, traders blow up accounts on a single bad day. Discipline doesn't scale manually.</p>
+    </div>
+
+    <div class="problem-card">
+      <div class="num">04 · TRANSPARENCY</div>
+      <h3>"What did the bot just do?"</h3>
+      <p>Black-box algorithmic services execute trades without explaining why. Traders can't audit the reasoning, can't replay decisions, and can't learn from mistakes. The decision trail is invisible.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3 — SOLUTION -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">03 / 08</div>
+  </div>
+
+  <h2 class="slide-title">A four-stage autonomous pipeline</h2>
+  <div class="slide-subtitle">Each tick: ingest news → score with LLM → check risk → submit to Alpaca. All observable in real time.</div>
+
+  <div class="solution-flow">
+    <div class="flow-node">
+      <div class="icon">📰</div>
+      <h4>News Fetcher</h4>
+      <p>Mock source now · real news adapters plug in (Alpaca News, Benzinga, Finnhub)</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">
+      <div class="icon">🧠</div>
+      <h4>LLM Sentiment</h4>
+      <p>GLM-4.6 via z-ai-web-dev-sdk · structured JSON: label, score, confidence, reasoning</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">🛡️</div>
+      <h4>Risk Guard</h4>
+      <p>max positions · max position % · sentiment threshold · paper-only hard refusal</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="icon">⚡</div>
+      <h4>Alpaca API</h4>
+      <p>@alpacahq/alpaca-trade-api v4 · paper trading · market orders with day TIF</p>
+    </div>
+  </div>
+
+  <div class="solution-callout">
+    <h4>WHY THIS MATTERS</h4>
+    <p>Every decision — including the rejected ones — is persisted to SQLite and streamed live to the Next.js dashboard over socket.io. Judges can watch <strong>TICK → NEWS → LLM → ORDER → FILL</strong> events arrive in real time, with the LLM's reasoning quoted on each headline.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4 — HOW IT WORKS -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">04 / 08</div>
+  </div>
+
+  <h2 class="slide-title">Inside one agent tick</h2>
+  <div class="slide-subtitle">The agent loop runs every 15–300 seconds (configurable). Each tick executes these 6 steps.</div>
+
+  <div class="tick-flow">
+    <div class="tick-step">
+      <div class="step-num">1</div>
+      <div>
+        <h4>Wake up &amp; fetch portfolio</h4>
+        <p>Pull live account equity, cash, and open positions from Alpaca paper API. Refresh the watchlist (10 default tickers + macro).</p>
+      </div>
+    </div>
+
+    <div class="tick-step">
+      <div class="step-num">2</div>
+      <div>
+        <h4>Ingest fresh headlines</h4>
+        <p>NewsFetcher pulls 1–3 new headlines per tick. Mock generator ships realistic AAPL / NVDA / TSLA / SPY / macro news; real sources drop in.</p>
+      </div>
+    </div>
+
+    <div class="tick-step">
+      <div class="step-num">3</div>
+      <div>
+        <h4>LLM sentiment analysis</h4>
+        <p>Each headline → GLM-4.6 with a strict JSON-only system prompt. Returns label (bullish/bearish/neutral), score (-1..+1), confidence (0..1), reasoning.</p>
+      </div>
+    </div>
+
+    <div class="tick-step">
+      <div class="step-num">4</div>
+      <div>
+        <h4>Risk guard evaluation</h4>
+        <p>Check max positions, max position %, sentiment threshold, paper-only. SELL only if we hold the symbol. BUY only if under caps. 8 orders blocked live.</p>
+      </div>
+    </div>
+
+    <div class="tick-step">
+      <div class="step-num">5</div>
+      <div>
+        <h4>Submit to Alpaca</h4>
+        <p>Approved trades → market order via @alpacahq/alpaca-trade-api v4. Day TIF. Auto-cancels at close. client_order_id tagged for audit trail.</p>
+      </div>
+    </div>
+
+    <div class="tick-step">
+      <div class="step-num">6</div>
+      <div>
+        <h4>Persist + broadcast</h4>
+        <p>Decision logged to SQLite (NewsItem + Decision + Position tables). socket.io emits every event live to the dashboard — judges see the full chain.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5 — LIVE TRADING PROOF -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">05 / 08</div>
+  </div>
+
+  <h2 class="slide-title">Live trading proof — real Alpaca paper account</h2>
+  <div class="slide-subtitle">Captured Aug 28, 2026 13:42 ET during market hours. Agent ran autonomously; every order below is a real Alpaca fill at market prices.</div>
+
+  <div class="proof-grid">
+    <div class="stat-card">
+      <div class="label">Account Equity</div>
+      <div class="value">$99,814</div>
+      <div class="sub">started at $100,000</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Filled Orders</div>
+      <div class="value">13</div>
+      <div class="sub">incl. 1 SELL closing NVDA</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Open Positions</div>
+      <div class="value">6</div>
+      <div class="sub">AAPL · MSFT · JPM · NVDA · F · RIG</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Daily P&amp;L</div>
+      <div class="value" style="color:#f87171">−$39</div>
+      <div class="sub">−0.04% (red market day)</div>
+    </div>
+  </div>
+
+  <table class="fills">
+    <thead>
+      <tr>
+        <th>Ticker</th><th>Side</th><th>Qty</th><th>Filled Price</th><th>Status</th><th>Order ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono">AAPL</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">53</td>
+        <td class="mono">$317.14</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">109c2e5d-e657…</td>
+      </tr>
+      <tr>
+        <td class="mono">MSFT</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">53</td>
+        <td class="mono">$508.79</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">e19f15e5-68c4…</td>
+      </tr>
+      <tr>
+        <td class="mono">JPM</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">53</td>
+        <td class="mono">$355.77</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">24443dc1-5964…</td>
+      </tr>
+      <tr>
+        <td class="mono">NVDA</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">46</td>
+        <td class="mono">$227.54</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">fd9180a1-cded…</td>
+      </tr>
+      <tr>
+        <td class="mono">NVDA</td>
+        <td class="tag-sell">SELL</td>
+        <td class="mono">99</td>
+        <td class="mono">$227.66</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">f662b548-0b3c…</td>
+      </tr>
+      <tr>
+        <td class="mono">JPM</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">39</td>
+        <td class="mono">$355.77</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">de44a352-9953…</td>
+      </tr>
+      <tr>
+        <td class="mono">AAPL</td>
+        <td class="tag-buy">BUY</td>
+        <td class="mono">53</td>
+        <td class="mono">$317.85</td>
+        <td><span class="tag-filled">filled</span></td>
+        <td class="mono">c09f5622-4d93…</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:18px;font-size:12px;color:#64748b;font-family:'JetBrains Mono',monospace;">
+    Full machine-readable proof: <span style="color:#10b981">download/live-trading-proof.json</span> · includes every order_id, client_order_id, filled_avg_price, created_at, filled_at, full account + positions snapshot
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6 — TECH STACK -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">06 / 08</div>
+  </div>
+
+  <h2 class="slide-title">Built on a modern TypeScript stack</h2>
+  <div class="slide-subtitle">Everything runs in two processes: the Next.js app on port 3000, the Bun agent-service on port 3003. Shared SQLite database.</div>
+
+  <div class="tech-grid">
+    <div class="tech-col">
+      <h4>Frontend</h4>
+      <div class="tech-item"><span class="name">Next.js</span><span class="ver">16.1.3</span></div>
+      <div class="tech-item"><span class="name">React</span><span class="ver">19.0.0</span></div>
+      <div class="tech-item"><span class="name">TypeScript</span><span class="ver">5.x</span></div>
+      <div class="tech-item"><span class="name">Tailwind CSS</span><span class="ver">4.x</span></div>
+      <div class="tech-item"><span class="name">shadcn/ui</span><span class="ver">New York</span></div>
+      <div class="tech-item"><span class="name">Framer Motion</span><span class="ver">12.x</span></div>
+      <div class="tech-item"><span class="name">TanStack Query</span><span class="ver">5.x</span></div>
+      <div class="tech-item"><span class="name">Recharts</span><span class="ver">2.x</span></div>
+    </div>
+
+    <div class="tech-col">
+      <h4>Backend &amp; Agent</h4>
+      <div class="tech-item"><span class="name">Bun runtime</span><span class="ver">1.3.x</span></div>
+      <div class="tech-item"><span class="name">socket.io</span><span class="ver">4.8.x</span></div>
+      <div class="tech-item"><span class="name">Alpaca SDK</span><span class="ver">v4.0.1</span></div>
+      <div class="tech-item"><span class="name">z-ai-web-dev-sdk</span><span class="ver">0.0.18</span></div>
+      <div class="tech-item"><span class="name">Prisma ORM</span><span class="ver">6.11.x</span></div>
+      <div class="tech-item"><span class="name">SQLite</span><span class="ver">shared</span></div>
+      <div class="tech-item"><span class="name">GLM-4.6</span><span class="ver">LLM</span></div>
+      <div class="tech-item"><span class="name">Caddy gateway</span><span class="ver">port 81</span></div>
+    </div>
+
+    <div class="tech-col">
+      <h4>Architecture</h4>
+      <div class="tech-item"><span class="name">11 API routes</span><span class="ver">REST</span></div>
+      <div class="tech-item"><span class="name">1 socket.io stream</span><span class="ver">live</span></div>
+      <div class="tech-item"><span class="name">6 Prisma models</span><span class="ver">NewsItem · Decision · Position · AgentEvent · AgentConfig · WatchlistItem</span></div>
+      <div class="tech-item"><span class="name">Mock fallback</span><span class="ver">Alpaca + News</span></div>
+      <div class="tech-item"><span class="name">Risk guard</span><span class="ver">configurable</span></div>
+      <div class="tech-item"><span class="name">Paper-only</span><span class="ver">hard refusal</span></div>
+      <div class="tech-item"><span class="name">Demo video</span><span class="ver">2:43 MP4</span></div>
+      <div class="tech-item"><span class="name">License</span><span class="ver">MIT</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7 — RISK GUARD -->
+<!-- ============================================================ -->
+<section class="page">
+  <div class="header-row">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">07 / 08</div>
+  </div>
+
+  <h2 class="slide-title">Risk guardrails — not just submitting what the LLM says</h2>
+  <div class="slide-subtitle">Every proposed trade passes a 4-check guard before reaching Alpaca. All thresholds are tunable live from the dashboard.</div>
+
+  <div class="risk-row">
+    <div class="risk-card">
+      <div class="label">Max Positions</div>
+      <div class="val">5</div>
+      <div class="desc">Hard cap on concurrent open positions. BUY orders that would exceed this are rejected. Tunable 1–20 from the dashboard.</div>
+    </div>
+    <div class="risk-card">
+      <div class="label">Max Position Size</div>
+      <div class="val">10%</div>
+      <div class="desc">No single position can exceed 10% of portfolio equity. Position sizing scales with sentiment confidence. Tunable 1–25%.</div>
+    </div>
+    <div class="risk-card">
+      <div class="label">Sentiment Threshold</div>
+      <div class="val">0.55</div>
+      <div class="desc">LLM confidence must be ≥ 0.55 to act. Below this, the agent logs HOLD and skips. Tunable 0.30–0.95.</div>
+    </div>
+    <div class="risk-card">
+      <div class="label">Paper-Only</div>
+      <div class="val">TRUE</div>
+      <div class="desc">Hard refusal of any live order, regardless of ALPACA_PAPER env value. Cannot be disabled from the UI.</div>
+    </div>
+  </div>
+
+  <div class="blocked-list">
+    <h4>Blocked during live run (8 orders)</h4>
+    <ul>
+      <li>SELL on TSLA, MSFT, AAPL — agent didn't hold these positions yet (can't sell what you don't have)</li>
+      <li>BUY on TSLA, GOOGL, META — max positions (5) reached, would exceed the cap</li>
+      <li>SELL on MARKET macro news — neutral sentiment, but the agent still proposed SELL on the macro bearish headline; risk guard correctly rejected because MARKET isn't a tradable ticker</li>
+      <li>HOLD on neutral macro news — logged as SKIPPED, no order sent</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8 — CLOSING -->
+<!-- ============================================================ -->
+<section class="page closing-slide">
+  <div class="header-row" style="position:absolute;top:56px;left:72px;right:72px;">
+    <div class="brand"><div class="dot"></div>NewsFlow Trader</div>
+    <div class="page-num">08 / 08</div>
+  </div>
+
+  <h2>Built for Alpaca.<br>Built for the hackathon.</h2>
+  <p>An autonomous LLM agent that reads news, scores sentiment with GLM-4.6, applies a configurable risk guard, and submits approved paper orders to Alpaca's Trading API — every decision visible in a live Next.js dashboard. 13 real paper fills captured during market hours. MIT-licensed and ready to fork.</p>
+
+  <div class="links-row">
+    <div class="link-pill">github.com/icohangar-ops/newsflow-trader</div>
+    <div class="link-pill">github.com/Cubiczan/newsflow-trader</div>
+    <div class="link-pill">download/newsflow-trader-demo.mp4</div>
+    <div class="link-pill">download/live-trading-proof.json</div>
+  </div>
+
+  <div class="closing-footer">
+    Alpaca AI Trading Agents Hackathon · Aug 28 – Sep 4, 2026 · $6,000 prize pool · lablab.ai
+  </div>
+</section>
+
+</body>
+</html>
