@@ -61,7 +61,6 @@ server.log
 # Mini-service runtime
 /mini-services/agent-service/node_modules/
 /mini-services/agent-service/.cache/
-/db/custom.db
 /db/custom.db-journal
 
 # Untracked intermediate files

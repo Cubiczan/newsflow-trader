@@ -1,26 +1,35 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { fetchPortfolioFromAgent } from '@/lib/agent/shared'
+import { withDb } from '@/lib/agent/db-resilience'
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/portfolio — read latest portfolio snapshot.
-// The agent-service is the single source of truth for portfolio state since
-// it owns the Alpaca SDK client. We surface the most recent portfolio snapshot
-// from the agent-service via the `tick` event payload (stored in AgentEvent).
-// Falls back to DB-derived numbers (sum of open Positions) if the
-// agent-service hasn't ticked yet.
+// The agent-service (Bun mini-service on port 3003) is the single source of
+// truth for live Alpaca account state since it owns the Alpaca SDK client.
+// We surface the most recent portfolio snapshot from the agent-service via
+// the `tick` event payload (stored in AgentEvent).
+// Falls back to DB-derived numbers (sum of open Positions) when the
+// agent-service hasn't ticked, and to "demo mode" mock numbers when the
+// DB is unavailable (e.g. on Vercel's read-only filesystem).
 export async function GET() {
   const livePortfolio = await fetchPortfolioFromAgent()
 
-  const positions = await db.position.findMany({
-    where: { closedAt: null },
-    orderBy: { openedAt: 'desc' },
-  })
-  const newsCount = await db.newsItem.count()
-  const decisionCount = await db.decision.count()
-  const filledCount = await db.decision.count({ where: { status: 'FILLED' } })
-  const submittedCount = await db.decision.count({ where: { status: 'SUBMITTED' } })
+  const { value: positions, demoMode } = await withDb(
+    () => db.position.findMany({ where: { closedAt: null }, orderBy: { openedAt: 'desc' } }),
+    () => [],
+  )
+  const newsCount = await withDb(() => db.newsItem.count(), () => 0)
+  const decisionCount = await withDb(() => db.decision.count(), () => 0)
+  const filledCount = await withDb(
+    () => db.decision.count({ where: { status: 'FILLED' } }),
+    () => 0,
+  )
+  const submittedCount = await withDb(
+    () => db.decision.count({ where: { status: 'SUBMITTED' } }),
+    () => 0,
+  )
 
   if (livePortfolio) {
     // Use the live snapshot from the agent-service (real Alpaca paper account)
@@ -38,11 +47,12 @@ export async function GET() {
         : 0,
       isMock: livePortfolio.isMock,
       positionsOpen: positions.length,
-      newsIngested: newsCount,
-      decisions: decisionCount,
-      filledOrders: filledCount,
-      submittedOrders: submittedCount,
+      newsIngested: newsCount.value,
+      decisions: decisionCount.value,
+      filledOrders: filledCount.value,
+      submittedOrders: submittedCount.value,
       alpacaMode: livePortfolio.isMock ? 'mock' : 'paper-live',
+      demoMode: demoMode && (livePortfolio.isMock || !livePortfolio.equity),
     })
   }
 
@@ -68,10 +78,11 @@ export async function GET() {
     dailyPnlPct: (unrealizedPnl / initialEquity) * 100,
     isMock: true,
     positionsOpen: positions.length,
-    newsIngested: newsCount,
-    decisions: decisionCount,
-    filledOrders: filledCount,
-    submittedOrders: submittedCount,
+    newsIngested: newsCount.value,
+    decisions: decisionCount.value,
+    filledOrders: filledCount.value,
+    submittedOrders: submittedCount.value,
     alpacaMode: 'mock',
+    demoMode: true,
   })
 }

@@ -19,6 +19,9 @@ export interface PortfolioStats {
   newsIngested: number
   decisions: number
   filledOrders: number
+  submittedOrders?: number
+  alpacaMode?: string
+  demoMode?: boolean
 }
 
 function fmt(n: number, digits = 2): string {

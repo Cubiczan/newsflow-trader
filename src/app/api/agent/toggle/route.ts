@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendToAgent } from '@/lib/agent/socket'
 import { db } from '@/lib/db'
+import { withDb } from '@/lib/agent/db-resilience'
 
 export const dynamic = 'force-dynamic'
 
 // POST /api/agent/toggle — start/stop the agent loop
 // Body: { running: boolean }
+// On Vercel (no agent-service), returns demo-mode acknowledgement.
 export async function POST(req: NextRequest) {
   let body: { running?: boolean }
   try {
@@ -14,14 +16,37 @@ export async function POST(req: NextRequest) {
     body = {}
   }
   const target = body.running ?? true
+
+  let socketOk = false
   try {
     await sendToAgent(target ? 'agent:start' : 'agent:stop')
-    await db.agentConfig.update({
+    socketOk = true
+  } catch {
+    socketOk = false
+  }
+
+  const { demoMode: dbDemo } = await withDb(
+    () => db.agentConfig.update({
       where: { id: 'default' },
       data: { running: target },
-    })
-    return NextResponse.json({ ok: true, running: target })
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message }, { status: 503 })
+    }),
+    () => null,
+  )
+
+  if (!socketOk) {
+    return NextResponse.json({
+      ok: false,
+      running: target,
+      demoMode: true,
+      message:
+        'Agent service is not reachable. This is expected on Vercel — the autonomous agent loop requires a long-running server. ' +
+        'To start the agent locally: clone the repo, run `bash scripts/start-agent-service.sh`, then open localhost:3000.',
+    }, { status: 200 })
   }
+
+  return NextResponse.json({
+    ok: true,
+    running: target,
+    demoMode: dbDemo,
+  })
 }

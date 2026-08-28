@@ -9,6 +9,7 @@ import { NewsFeed, type NewsItemDTO } from '@/components/dashboard/NewsFeed'
 import { PositionsCard, type PositionDTO } from '@/components/dashboard/PositionsCard'
 import { AgentLog } from '@/components/dashboard/AgentLog'
 import { ConfigCard, type ConfigDTO } from '@/components/dashboard/ConfigCard'
+import { DemoModeBanner } from '@/components/dashboard/DemoModeBanner'
 import { Footer } from '@/components/dashboard/Footer'
 
 import { useAgentEvents, getAgentSocket } from '@/lib/agent/client'
@@ -146,6 +147,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col">
       <div className="max-w-[1400px] w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 flex-1 flex flex-col gap-4 sm:gap-6">
         <AgentHeader running={running} connected={connected} mode={mode} />
+
+        <DemoModeBanner demoMode={portfolio.data?.demoMode} />
 
         <StatsRow stats={portfolio.data} />
 
