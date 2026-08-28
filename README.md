@@ -7,6 +7,8 @@
 
 **🎬 Demo video:** [`download/newsflow-trader-demo.mp4`](download/newsflow-trader-demo.mp4) (2 min 43 sec, 3.3 MB)
 
+**Live demo:** https://newsflow-trader.vercel.app — deployed Next.js 16 dashboard with the live trading seed data baked in (20 news items, 20 decisions, 6 open positions). The agent loop itself runs locally (the Bun mini-service on port 3003); see "Quick start (dev)" below for the full live experience.
+
 NewsFlow Trader is an autonomous trading agent that reads financial news headlines, runs LLM-based sentiment analysis, applies a configurable risk guard, and submits approved paper-trading orders to Alpaca. Every step of the decision pipeline is observable in a live Next.js dashboard with a real-time agent activity log streamed over WebSocket.
 
 ---
