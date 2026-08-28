@@ -16,8 +16,16 @@ if [ -n "$EXISTING_PID" ]; then
 fi
 
 cd "$SERVICE_DIR"
-DATABASE_URL="file:/home/z/my-project/db/custom.db" \
-  setsid -f bun --hot src/index.ts > "$LOG_FILE" 2>&1
+
+# Load .env (Alpaca keys, DATABASE_URL, etc.) so the agent-service picks them up.
+set -a
+source "$PROJECT_DIR/.env"
+set +a
+
+# Default DATABASE_URL if .env didn't set it
+export DATABASE_URL="${DATABASE_URL:-file:/home/z/my-project/db/custom.db}"
+
+setsid -f bun --hot src/index.ts > "$LOG_FILE" 2>&1
 
 sleep 4
 echo "agent-service started"

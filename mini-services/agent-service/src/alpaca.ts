@@ -156,11 +156,12 @@ class MockAlpacaClient {
 class RealAlpacaClient {
   private client: Alpaca
   constructor(cfg: AlpacaConfig) {
+    // Alpaca SDK v4 expects `keyId` + `secret` (not `key` + `secret`).
     this.client = new Alpaca({
-      key: cfg.key,
+      keyId: cfg.key,
       secret: cfg.secret,
       paper: cfg.paper,
-    })
+    } as any)
   }
 
   async getAccount(): Promise<PortfolioSummary> {
@@ -199,13 +200,31 @@ class RealAlpacaClient {
     qty: number,
     side: 'buy' | 'sell',
   ): Promise<{ id: string; status: string }> {
+    // Use the ergonomic `market` helper. Note: Alpaca paper only fills market
+    // orders during market hours (9:30–16:00 ET, Mon–Fri). When the market is
+    // closed the order will be accepted (status='new') and fill on next open.
+    // We submit with `time_in_force: 'day'` so unfilled orders auto-cancel at
+    // market close — paper account never accumulates stale orders.
     const order: any = await this.client.trading.orders.market({
       symbol,
       qty,
       side,
+      timeInForce: 'day' as any,
       clientOrderId: `agent-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     } as any)
-    return { id: order.id ?? 'unknown', status: order.status ?? 'submitted' }
+    const id = order.id ?? 'unknown'
+    const status = order.status ?? 'new'
+
+    // If accepted but not filled, fetch the latest status once more
+    if (status === 'new' || status === 'pending_new' || status === 'accepted') {
+      try {
+        const refreshed: any = await this.client.trading.orders.getOrder({ orderId: id })
+        return { id, status: refreshed.status ?? status }
+      } catch {
+        // Ignore — return the original status
+      }
+    }
+    return { id, status }
   }
 
   async closePosition(symbol: string): Promise<void> {

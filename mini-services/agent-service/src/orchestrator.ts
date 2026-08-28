@@ -144,7 +144,22 @@ export class AgentOrchestrator {
     // 2. Portfolio snapshot (always pulled so the UI is fresh even on quiet ticks)
     const portfolio = await this.alpaca.getAccount()
     const positions = await this.alpaca.getPositions()
-    await this.emitEvent('tick', `portfolio equity=${portfolio.equity.toFixed(2)} positions=${positions.length}`)
+    await this.emitEvent(
+      'tick',
+      `portfolio equity=${portfolio.equity.toFixed(2)} positions=${positions.length}`,
+      {
+        equity: portfolio.equity,
+        cash: portfolio.cash,
+        buyingPower: portfolio.buyingPower,
+        longMarketValue: portfolio.longMarketValue,
+        shortMarketValue: portfolio.shortMarketValue,
+        lastEquity: portfolio.lastEquity,
+        dailyPnl: portfolio.dailyPnl,
+        dailyPnlPct: portfolio.dailyPnlPct,
+        isMock: portfolio.isMock,
+        positionsCount: positions.length,
+      },
+    )
 
     if (freshNews.length === 0) {
       await this.emitEvent('tick', `tick #${this.tickCount} — no new headlines`)
@@ -334,15 +349,22 @@ export class AgentOrchestrator {
 
     try {
       const result = await this.alpaca.submitMarketOrder(news.symbol, verdict.qty!, action === 'BUY' ? 'buy' : 'sell')
+      const isFilled = result.status === 'filled' || result.status === 'partially_filled'
+      const isAccepted = !isFilled && ['new', 'pending_new', 'accepted', 'pending_replace', 'pending_cancel'].includes(result.status)
       await db.decision.update({
         where: { id: decision.id },
         data: {
-          status: result.status === 'filled' ? 'FILLED' : 'SUBMITTED',
+          status: isFilled ? 'FILLED' : isAccepted ? 'SUBMITTED' : 'REJECTED',
           orderId: result.id,
-          filledAt: result.status === 'filled' ? new Date() : null,
+          filledAt: isFilled ? new Date() : null,
         },
       })
-      await this.emitEvent('order_filled', `${news.symbol} ${action} ${result.status} (orderId ${result.id})`, {
+      const eventMsg = isFilled
+        ? `${news.symbol} ${action} FILLED (orderId ${result.id})`
+        : isAccepted
+          ? `${news.symbol} ${action} accepted → ${result.status.toUpperCase()} (will fill when market opens, orderId ${result.id})`
+          : `${news.symbol} ${action} ${result.status.toUpperCase()} (orderId ${result.id})`
+      await this.emitEvent('order_filled', eventMsg, {
         decisionId: decision.id,
         orderId: result.id,
         status: result.status,
