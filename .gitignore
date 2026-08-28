@@ -67,3 +67,4 @@ server.log
 # Untracked intermediate files
 *.webm.part
 /tmp/
+/tool-results/
