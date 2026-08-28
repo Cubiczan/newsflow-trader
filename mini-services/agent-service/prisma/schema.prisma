@@ -1,0 +1,124 @@
+// Prisma schema for NewsFlow Trader — Alpaca AI Trading Agents Hackathon
+// Data model: news → sentiment → agent decision → trade (paper or live)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Watchlist / symbols the agent is allowed to trade ──
+model WatchlistItem {
+  id        String   @id @default(cuid())
+  symbol    String   @unique
+  name      String?
+  sector    String?
+  createdAt DateTime @default(now())
+
+  decisions Decision[]
+  positions Position[]
+}
+
+// ── News items ingested from external sources ──
+model NewsItem {
+  id           String   @id @default(cuid())
+  externalId   String?  // source id, dedup key
+  source       String   // 'reuters', 'bloomberg', 'benzinga', 'mock'
+  symbol       String   // related ticker (or 'MARKET' for macro)
+  headline     String
+  summary      String?
+  url          String?
+  publishedAt  DateTime
+  ingestedAt   DateTime @default(now())
+
+  // LLM-analyzed sentiment
+  sentiment    String?  // 'bullish' | 'bearish' | 'neutral'
+  sentimentScore Float? // -1.0 → +1.0
+  confidence   Float?   // 0.0 → 1.0
+  reasoning    String?  // one-line LLM rationale
+
+  // The decision the agent made (if any) based on this news
+  decisions Decision[]
+
+  @@index([symbol, publishedAt])
+  @@index([ingestedAt])
+}
+
+// ── Agent decision log — one per (news → action) ──
+model Decision {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+
+  newsId       String?  @unique
+  news         NewsItem?       @relation(fields: [newsId], references: [id])
+  symbol       String
+  watchlist    WatchlistItem?  @relation(fields: [symbol], references: [symbol])
+
+  action       String   // 'BUY' | 'SELL' | 'HOLD' | 'CLOSE' | 'WATCH'
+  reason       String   // human-readable reasoning chain
+  sentiment    String?
+  sentimentScore Float?
+
+  // Risk checks
+  qty          Float?
+  limitPrice   Float?
+  maxRiskPct   Float?   // % of portfolio risk budget consumed by this trade
+  approved     Boolean  @default(true) // did risk guard pass?
+
+  // Execution result (filled later by Alpaca callback)
+  status       String   @default("PENDING") // 'PENDING' | 'SUBMITTED' | 'FILLED' | 'REJECTED' | 'SKIPPED'
+  orderId      String? // Alpaca order id
+  filledPrice  Float?
+  filledAt     DateTime?
+
+  @@index([createdAt])
+  @@index([symbol, createdAt])
+}
+
+// ── Open / closed positions (mirror of Alpaca) ──
+model Position {
+  id           String   @id @default(cuid())
+  symbol       String
+  watchlist    WatchlistItem? @relation(fields: [symbol], references: [symbol])
+
+  side         String   // 'long' | 'short' | 'flat'
+  qty          Float
+  avgEntryPrice Float?
+  currentPrice  Float?
+  marketValue   Float?
+  unrealizedPnl Float?
+  unrealizedPnlPct Float?
+
+  openedAt     DateTime @default(now())
+  closedAt     DateTime?
+
+  @@index([symbol])
+}
+
+// ── Agent run loop events ──
+model AgentEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  type      String   // 'tick' | 'news_ingested' | 'sentiment' | 'decision' | 'order_submitted' | 'order_filled' | 'risk_block' | 'error'
+  message   String
+  payload   String?  // JSON string
+
+  @@index([createdAt])
+}
+
+// ── Persistent agent configuration ──
+model AgentConfig {
+  id            String   @id @default("default")
+  running       Boolean  @default(false)
+  mode          String   @default("paper") // 'paper' | 'live' (only 'paper' enabled in hackathon build)
+  tickIntervalSec Int    @default(60)
+  maxPositions  Int      @default(5)
+  maxPositionPct Float   @default(0.10) // 10% of portfolio per position
+  sentimentThreshold Float @default(0.55) // LLM confidence needed to act
+  watchlistCsv  String   @default("AAPL,MSFT,NVDA,TSLA,AMZN,META,GOOGL,JPM,XOM,SPY")
+  newsSourcesCsv String  @default("mock,benzinga")
+  updatedAt     DateTime @updatedAt
+}
