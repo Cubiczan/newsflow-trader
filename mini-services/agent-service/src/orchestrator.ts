@@ -43,6 +43,9 @@ export interface AgentEvent {
 
 async function ensureWatchlist(cfg: { watchlistCsv: string }): Promise<void> {
   const symbols = cfg.watchlistCsv.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean)
+  // Always include 'MARKET' so macro headlines from the news fetcher have a
+  // valid watchlist entry to satisfy the Decision → WatchlistItem FK.
+  if (!symbols.includes('MARKET')) symbols.push('MARKET')
   for (const sym of symbols) {
     const existing = await db.watchlistItem.findUnique({ where: { symbol: sym } })
     if (!existing) {
@@ -179,6 +182,16 @@ export class AgentOrchestrator {
   }
 
   private async syncStateToDb(portfolio: PortfolioSummary, positions: AlpacaPosition[]): Promise<void> {
+    // Ensure every position's symbol has a WatchlistItem row (FK requirement).
+    // The Alpaca account may have pre-existing positions in symbols that
+    // aren't in the user's watchlist (e.g. carried over from manual trades).
+    for (const p of positions) {
+      const existing = await db.watchlistItem.findUnique({ where: { symbol: p.symbol } })
+      if (!existing) {
+        await db.watchlistItem.create({ data: { symbol: p.symbol } })
+        await this.emitEvent('status', `added ${p.symbol} to watchlist (existing Alpaca position)`)
+      }
+    }
     // Close DB positions that are no longer in Alpaca
     const liveSymbols = new Set(positions.map((p) => p.symbol))
     const dbPositions = await db.position.findMany({ where: { closedAt: null } })

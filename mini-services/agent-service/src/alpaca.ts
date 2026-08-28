@@ -183,15 +183,17 @@ class RealAlpacaClient {
 
   async getPositions(): Promise<AlpacaPosition[]> {
     const positions: any[] = await this.client.trading.positions.getAllOpenPositions()
-    return positions.map((p) => ({
+    // Alpaca SDK v4 returns camelCase fields (currentPrice, marketValue, avgEntryPrice)
+    // but REST responses use snake_case — accept both for safety.
+    return positions.map((p: any) => ({
       symbol: p.symbol,
       qty: Number(p.qty),
       side: p.side,
-      avgEntryPrice: Number(p.avg_entry_price),
-      currentPrice: Number(p.current_price),
-      marketValue: Number(p.market_value),
-      unrealizedPnl: Number(p.unrealized_pl),
-      unrealizedPnlPct: Number(p.unrealized_plpc ?? 0) * 100,
+      avgEntryPrice: Number(p.avgEntryPrice ?? p.avg_entry_price ?? 0),
+      currentPrice: Number(p.currentPrice ?? p.current_price ?? 0),
+      marketValue: Number(p.marketValue ?? p.market_value ?? 0),
+      unrealizedPnl: Number(p.unrealizedPl ?? p.unrealized_pl ?? 0),
+      unrealizedPnlPct: Number(p.unrealizedPlpc ?? p.unrealized_plpc ?? 0) * 100,
     }))
   }
 

@@ -1,0 +1,232 @@
+{
+  "schema": "newsflow-trader-v1",
+  "captured_at": null,
+  "hackathon": "Alpaca AI Trading Agents Hackathon \u2014 Aug 28 to Sep 4, 2026",
+  "agent": {
+    "mode": "paper-live",
+    "llm_model": "glm-4.6",
+    "risk_guard": "maxPositions=5, maxPositionPct=10%, sentimentThreshold=0.55, paperOnly=true"
+  },
+  "account": {
+    "id": "5e9c35eb-9cf2-4ecc-90c2-d3bd4fc85572",
+    "account_number": "PA3M972PH0SW",
+    "status": "ACTIVE",
+    "currency": "USD",
+    "equity": 99814.18,
+    "cash": -26975.22,
+    "buying_power": 243807.91,
+    "long_market_value": 126789.4,
+    "short_market_value": 0.0,
+    "last_equity": 99853.19,
+    "daily_pnl": -39.01000000000931,
+    "daily_pnl_pct": -0.039067354783561825
+  },
+  "positions": [
+    {
+      "symbol": "AAPL",
+      "qty": 159.0,
+      "side": "long",
+      "avg_entry_price": 317.643647,
+      "current_price": 317.17,
+      "market_value": 50430.03,
+      "unrealized_pl": -75.309873,
+      "unrealized_plpc": -0.00149
+    },
+    {
+      "symbol": "F",
+      "qty": 70.0,
+      "side": "long",
+      "avg_entry_price": 14.11,
+      "current_price": 13.995,
+      "market_value": 979.65,
+      "unrealized_pl": -8.05,
+      "unrealized_plpc": -0.00815
+    },
+    {
+      "symbol": "JPM",
+      "qty": 131.0,
+      "side": "long",
+      "avg_entry_price": 355.764046,
+      "current_price": 355.22,
+      "market_value": 46533.82,
+      "unrealized_pl": -71.270026,
+      "unrealized_plpc": -0.00153
+    },
+    {
+      "symbol": "MSFT",
+      "qty": 53.0,
+      "side": "long",
+      "avg_entry_price": 508.788302,
+      "current_price": 510.48,
+      "market_value": 27055.44,
+      "unrealized_pl": 89.659994,
+      "unrealized_plpc": 0.00332
+    },
+    {
+      "symbol": "RIG",
+      "qty": 150.0,
+      "side": "long",
+      "avg_entry_price": 6.47,
+      "current_price": 5.785,
+      "market_value": 867.75,
+      "unrealized_pl": -102.75,
+      "unrealized_plpc": -0.10587
+    },
+    {
+      "symbol": "RIVN",
+      "qty": 58.0,
+      "side": "long",
+      "avg_entry_price": 17.25,
+      "current_price": 16.055,
+      "market_value": 931.19,
+      "unrealized_pl": -69.31,
+      "unrealized_plpc": -0.06928
+    }
+  ],
+  "filled_orders_count": 13,
+  "filled_orders": [
+    {
+      "symbol": "AAPL",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 317.143396,
+      "status": "filled",
+      "created_at": "2026-08-28T13:41:54.211926Z",
+      "filled_at": "2026-08-28T13:41:55.424314Z",
+      "order_id": "109c2e5d-e657-4e61-8171-13f578ed8dcd",
+      "client_order_id": "agent-1787924514111-id4q"
+    },
+    {
+      "symbol": "NVDA",
+      "side": "sell",
+      "qty": 99.0,
+      "filled_avg_price": 227.66,
+      "status": "filled",
+      "created_at": "2026-08-28T13:39:52.457897Z",
+      "filled_at": "2026-08-28T13:39:53.728319Z",
+      "order_id": "f662b548-0b3c-4b11-a2bb-2093b1969a4c",
+      "client_order_id": "agent-1787924392358-inq8"
+    },
+    {
+      "symbol": "NVDA",
+      "side": "buy",
+      "qty": 46.0,
+      "filled_avg_price": 227.537391,
+      "status": "filled",
+      "created_at": "2026-08-28T13:39:19.367171Z",
+      "filled_at": "2026-08-28T13:39:20.549462Z",
+      "order_id": "fd9180a1-cded-4cce-86f8-21be7d211885",
+      "client_order_id": "agent-1787924359267-13q1"
+    },
+    {
+      "symbol": "JPM",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 355.77,
+      "status": "filled",
+      "created_at": "2026-08-28T13:38:44.295832Z",
+      "filled_at": "2026-08-28T13:38:44.678488Z",
+      "order_id": "24443dc1-5964-4b60-9397-b56810aa117f",
+      "client_order_id": "agent-1787924324196-jl9z"
+    },
+    {
+      "symbol": "JPM",
+      "side": "buy",
+      "qty": 39.0,
+      "filled_avg_price": 355.77,
+      "status": "filled",
+      "created_at": "2026-08-28T13:37:44.604732Z",
+      "filled_at": "2026-08-28T13:37:46.58212Z",
+      "order_id": "de44a352-9953-4b3b-9004-01c20d1c4bce",
+      "client_order_id": "agent-1787924264504-jhca"
+    },
+    {
+      "symbol": "AAPL",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 317.847547,
+      "status": "filled",
+      "created_at": "2026-08-28T13:36:20.623694Z",
+      "filled_at": "2026-08-28T13:36:22.038537Z",
+      "order_id": "b40f57c3-6a52-4e59-89c0-216435f996e8",
+      "client_order_id": "agent-1787924180522-np57"
+    },
+    {
+      "symbol": "NVDA",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 226.64,
+      "status": "filled",
+      "created_at": "2026-08-28T13:34:10.126178Z",
+      "filled_at": "2026-08-28T13:34:39.491648Z",
+      "order_id": "109284a8-d66e-48dd-88aa-95ced5312fcc",
+      "client_order_id": "agent-1787924050026-4yvq"
+    },
+    {
+      "symbol": "JPM",
+      "side": "buy",
+      "qty": 39.0,
+      "filled_avg_price": 355.75,
+      "status": "filled",
+      "created_at": "2026-08-28T13:34:08.871231Z",
+      "filled_at": "2026-08-28T13:34:47.574743Z",
+      "order_id": "a48250a2-5af2-492f-b19b-e505dcad3e2c",
+      "client_order_id": "agent-1787924048772-xito"
+    },
+    {
+      "symbol": "MSFT",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 508.788302,
+      "status": "filled",
+      "created_at": "2026-08-28T13:33:27.784432Z",
+      "filled_at": "2026-08-28T13:35:03.549026Z",
+      "order_id": "e19f15e5-68c4-482d-9d36-bc43dadd75b0",
+      "client_order_id": "agent-1787924007686-hrq0"
+    },
+    {
+      "symbol": "AAPL",
+      "side": "buy",
+      "qty": 53.0,
+      "filled_avg_price": 317.94,
+      "status": "filled",
+      "created_at": "2026-08-28T13:33:26.545844Z",
+      "filled_at": "2026-08-28T13:34:30.671405Z",
+      "order_id": "c09f5622-4d93-48c1-b11e-0ae34a96e1ce",
+      "client_order_id": "agent-1787924006446-a0iz"
+    },
+    {
+      "symbol": "RIG",
+      "side": "buy",
+      "qty": 150.0,
+      "filled_avg_price": 6.47,
+      "status": "filled",
+      "created_at": "2026-02-14T03:32:17.208123Z",
+      "filled_at": "2026-02-17T14:30:34.556034Z",
+      "order_id": "8c565c9a-1e96-4cb4-9881-299fab9f922a",
+      "client_order_id": "dc3a5e71-f4db-4da7-8f9e-81dcd732e2d0"
+    },
+    {
+      "symbol": "F",
+      "side": "buy",
+      "qty": 70.0,
+      "filled_avg_price": 14.11,
+      "status": "filled",
+      "created_at": "2026-02-14T03:32:17.104463Z",
+      "filled_at": "2026-02-17T14:31:13.460659Z",
+      "order_id": "87e4eec1-1dbb-4268-9aae-5d71445818fd",
+      "client_order_id": "232be78e-a78c-4053-8fcd-7c59e28337fb"
+    },
+    {
+      "symbol": "RIVN",
+      "side": "buy",
+      "qty": 58.0,
+      "filled_avg_price": 17.25,
+      "status": "filled",
+      "created_at": "2026-02-14T03:32:17.004135Z",
+      "filled_at": "2026-02-17T14:31:06.142447Z",
+      "order_id": "dc97d4cc-9c00-4e8d-9120-a11ae3994e34",
+      "client_order_id": "3711f254-00da-420d-b1ad-90a22d4cf1cb"
+    }
+  ]
+}
