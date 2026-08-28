@@ -3,6 +3,10 @@
 > **Autonomous LLM-driven news trading agent on Alpaca's Trading API.**
 > Built for the [Alpaca AI Trading Agents Hackathon](https://lablab.ai/ai-hackathons/alpaca-ai-trading-agents-hackathon) — Aug 28 – Sep 4, 2026 · $6,000 prize pool.
 
+[![Demo video](download/newsflow-trader-thumbnail.png)](download/newsflow-trader-demo.mp4)
+
+**🎬 Demo video:** [`download/newsflow-trader-demo.mp4`](download/newsflow-trader-demo.mp4) (2 min 43 sec, 3.3 MB)
+
 NewsFlow Trader is an autonomous trading agent that reads financial news headlines, runs LLM-based sentiment analysis, applies a configurable risk guard, and submits approved paper-trading orders to Alpaca. Every step of the decision pipeline is observable in a live Next.js dashboard with a real-time agent activity log streamed over WebSocket.
 
 ---
@@ -206,7 +210,8 @@ A `mcp-client.ts` stub is left as a TODO for hackathon refinement — it would l
 
 - [x] **Public repo** — this scaffold, MIT-licensed
 - [x] **One-line pitch** — "NewsFlow Trader is an autonomous LLM-driven news trading agent on Alpaca. It reads news, scores sentiment with GLM-4.6, applies a configurable risk guard, and submits paper orders — all observable in a live dashboard."
-- [ ] **3–5 min demo video** — script in `scripts/demo-script.md`
+- [x] **3–5 min demo video** — `download/newsflow-trader-demo.mp4` (2:43)
+- [x] **Thumbnail** — `download/newsflow-trader-thumbnail.png` (1280×720)
 - [ ] **Architecture diagram** — `download/architecture.png` (TODO: generate with the `charts` skill)
 - [x] **Live demo URL** — `https://preview-<bot-id>.space-z.ai/`
 - [x] **Public Alpaca paper keys** — judges can verify by cloning + adding their own paper keys
