@@ -295,8 +295,9 @@ current decision path:
   signal source — the `SentimentAnalyzer` LLM call per headline
   (`mini-services/agent-service/src/sentiment.ts`). Its keyword fallback is a
   degraded mode of the same signal, not an independent second voter, so there
-  is no split to damp. Revisit if the pipeline grows multiple independent
-  signal sources.
+  is no split to damp. Revisit if the pipeline grows roughly three or more
+  independent signal sources — the row's own threshold; at two voters,
+  split damping is arithmetic without information.
 
 - **Row 3 (tiered market-data resolution, live → cache → mock)** reverses:
   the row tiers an external market-data read, and the decision path reads no
@@ -306,7 +307,11 @@ current decision path:
   (`mini-services/agent-service/src/alpaca.ts`), not an independent quote
   feed. There is no existing read to tier; adding a quote consumer would be
   new feature work, not pattern adoption. Flagged separately: the risk
-  guard's placeholder price is a known gap.
+  guard's placeholder price is a known gap. Revisit when the decision path
+  gains a real market-data read — at which point the row applies subject to
+  its own conditions (a free/fast/always-up API leaves tiers 2–3 dead
+  weight; headless surfaces gain no badge value) and via the canonical
+  `cubiczan_resilience.tiered` module, never a second package.
 
 ---
 
