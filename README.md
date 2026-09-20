@@ -310,8 +310,7 @@ current decision path:
   guard's placeholder price is a known gap. Revisit when the decision path
   gains a real market-data read — at which point the row applies subject to
   its own conditions (a free/fast/always-up API leaves tiers 2–3 dead
-  weight; headless surfaces gain no badge value) and via the canonical
-  `cubiczan_resilience.tiered` module, never a second package.
+  weight; headless surfaces gain no badge value).
 
 ---
 
