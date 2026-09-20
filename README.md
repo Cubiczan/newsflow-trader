@@ -284,6 +284,32 @@ This scaffold is the foundation for two follow-up hackathons. The agent loop, da
 
 ---
 
+## Propagation notes (wave B — DeFi rows)
+
+Evaluated against the propagation matrix (art_1BVEFwAr) on 2026-09-20. Both
+candidate rows **reverse** — their adoption conditions do not hold against the
+current decision path:
+
+- **Row 1 (swarm consensus damping)** reverses: damping applies when multiple
+  directional agents disagree, and this agent's decision path has exactly one
+  signal source — the `SentimentAnalyzer` LLM call per headline
+  (`mini-services/agent-service/src/sentiment.ts`). Its keyword fallback is a
+  degraded mode of the same signal, not an independent second voter, so there
+  is no split to damp. Revisit if the pipeline grows multiple independent
+  signal sources.
+
+- **Row 3 (tiered market-data resolution, live → cache → mock)** reverses:
+  the row tiers an external market-data read, and the decision path reads no
+  market data — `evaluateRisk` uses a placeholder reference price
+  (`mini-services/agent-service/src/risk.ts`, `referencePrice = 150`), and
+  position valuations come from Alpaca's broker API snapshots
+  (`mini-services/agent-service/src/alpaca.ts`), not an independent quote
+  feed. There is no existing read to tier; adding a quote consumer would be
+  new feature work, not pattern adoption. Flagged separately: the risk
+  guard's placeholder price is a known gap.
+
+---
+
 ## License
 
 MIT — built for the Alpaca AI Trading Agents Hackathon. Use it, fork it, ship it.
